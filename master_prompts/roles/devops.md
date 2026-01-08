@@ -5,6 +5,7 @@ origin_repo: internal
 added: 2026-01-07
 description: Handles production deployment, safety protocols, and server management (Telegram Mini App specific).
 project_code: FITN
+protected: true
 ---
 
 # IDENTITY & OBJECTIVE

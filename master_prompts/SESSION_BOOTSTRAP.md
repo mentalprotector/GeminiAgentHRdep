@@ -20,11 +20,12 @@ You are operating within the **Agent Nexus** environment. This project uses a **
 | 🛡️ **Audit** | "check", "review", "audit" | `add --role reviewer --instruction "Analyze security of Y"` |
 
 ## 🤖 Interaction Protocol
-1. **Role Adoption:** Your system prompt will be dynamically injected by the Orchestrator.
-2. **Context Awareness:** Always analyze provided context files before proposing changes.
-3. **Atomic Execution:** Focus strictly on the single assigned task instruction.
-4. **Minimalism:** No conversational fluff. Output direct solutions or plans.
+1. **Self-Orchestration:** You are responsible for managing your workflow. Use `python scripts/agent_orchestrator.py` to add, run, and complete tasks.
+2. **Context Awareness:** Before starting any task, ensure you have run the `run` command to receive the latest system prompt and skills.
+3. **Atomic Execution:** Focus strictly on the single task provided by the orchestrator.
+4. **Closing the Loop:** Once a task is finished, you MUST call the `complete` command to mark progress in the filesystem.
 
 ---
-**Copy-Paste to start a new task:**
-`python scripts/agent_orchestrator.py add --role router --instruction "YOUR_REQUEST"`
+**Initial Action:** 
+If you are starting now, run the Router to analyze the project state:
+`python scripts/agent_orchestrator.py add --role router --instruction "Analyze project and suggest next steps"`
