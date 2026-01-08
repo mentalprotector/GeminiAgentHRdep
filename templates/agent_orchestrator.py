@@ -252,7 +252,7 @@ def main():
 
     # Add
     add_parser = subparsers.add_parser("add", help="Add a new task")
-    add_parser.add_argument("--role", required=True, choices=["planner", "coder", "reviewer", "architect", "router", "product_owner", "devops"])
+    add_parser.add_argument("--role", required=True, help="Agent role")
     add_parser.add_argument("--instruction", required=True)
     add_parser.add_argument("--context", nargs="*", help="Context paths")
 
