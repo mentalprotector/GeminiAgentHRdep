@@ -5,204 +5,151 @@
 
 ## 👔 Отдел Кадров AI-Агентов
 
-**Хватит хранить промпты в текстовых файлах. Начните управлять штатом AI-сотрудников.**
+**Управление штатом AI-сотрудников для Gemini CLI.**
 
-Этот репозиторий служит **Центральным Штабом (HR-департаментом)** для ваших автономных агентов. Он предоставляет CLI-панель (Nexus) для "найма" (установки) агентов в ваши проекты, управления их "навыками" и оркестрации работы.
+Этот проект решает главную проблему работы с LLM: **потерю контекста и хаос в задачах.**
+Мы превращаем Gemini CLI в автономную среду разработки, где скрипты выступают в роли "Внешней Памяти" и "Менеджера Контекста".
 
 ---
 
-### 🌟 Философия и Возможности
+### 🌟 Философия: Зачем это нужно?
 
-Мы вышли за рамки простого "чата с LLM". Мы относимся к AI-агентам как к **сотрудникам** с конкретными ролями и навыками.
+Gemini — гениальный исполнитель, но плохой менеджер. Она забывает задачи, путает файлы и теряет нить.
+**Gemini Agent HRdep** дает ей структуру:
 
-#### 1. HR-менеджер (`nexus.py`)
-TUI-панель для просмотра всех ваших проектов в одном месте. Вы видите статус очередей задач и активность агентов.
+1.  **State Management (Оркестратор):** Скрипты хранят состояние проекта в JSON-файлах. Даже если сессия умрет, задачи останутся.
+2.  **Context Injection (Скиллы):** Вместо того чтобы каждый раз объяснять "Как мы пишем на React", Оркестратор **автоматически** вклеивает нужные гайды в промпт перед выполнением задачи.
+3.  **Role Play (Реестр):** Мы заставляем Gemini переключаться между строгими ролями (Coder, QA, Planner), чтобы она не была "мастером на все руки".
+
+**Результат:** Вы общаетесь с Gemini в чате, а скрипты на фоне управляют файлами, контекстом и очередью задач.
+
+---
+
+### 🚀 Рабочий Процесс (The Loop)
+
+#### 1. Инициализация (Bootstrap)
+Вы скармливаете Gemini системный промпт (`GEMINI_TEMPLATE.md`). Теперь она знает, что работает не одна, а в паре с Оркестратором.
+
+#### 2. Постановка задачи (Router)
+Вы говорите Gemini: *"Нам нужно добавить авторизацию"*.
+Gemini (как Роутер) генерирует команду для терминала:
+`python agent_orchestrator.py add --role planner ...`
+
+#### 3. Магия Оркестратора (Automation)
+Вы запускаете эту команду. Скрипт:
+*   Создает JSON-задачу.
+*   Сканирует проект и находит нужные **Скиллы** (например, `auth_best_practices.md`).
+*   Формирует идеальный промпт для следующего шага.
+
+#### 4. Исполнение (Execution)
+Вы запускаете `python agent_orchestrator.py run`. Скрипт выдает промпт. Вы кидаете его в Gemini.
+Gemini видит: *"Ты Coder. Вот задача. Вот файлы. Вот правила безопасности. Пиши код."*
+
+---
+
+### 📂 Инструменты
+
+#### 1. Nexus Dashboard (`nexus.py`)
+TUI-панель для управления проектами. Позволяет видеть очередь задач и "нанимать" (устанавливать) новых агентов из Реестра.
 
 <details>
-<summary><b>📸 Скриншот: Панель Управления (Dashboard)</b></summary>
-
-> *Вставьте скриншот главного списка проектов сюда*
+<summary><b>📸 Скриншот: Dashboard</b></summary>
 > `![Dashboard](INSERT_LINK_HERE)`
-
 </details>
 
-#### 2. Реестр и Найм (`master_prompts/`)
-"Золотой источник" правды. Вы выбираете Роли (Coder, QA) и Навыки (React, SQL) из списка и "инсталлируете" их в проект одной кнопкой.
+#### 2. Master Registry (`master_prompts/`)
+Библиотека ролей и навыков. Хотите добавить тесты? Установите `QA Expert`. Хотите deploy? Установите `DevOps`.
 
 <details>
-<summary><b>📸 Скриншот: Установка Агентов (Installer)</b></summary>
-
-> *Вставьте скриншот модального окна инсталляции сюда*
+<summary><b>📸 Скриншот: Installer</b></summary>
 > `![Installer](INSERT_LINK_HERE)`
-
 </details>
 
-#### 3. Queue Driven Development
-Мы не используем чаты для управления работой. Мы используем **Очередь Задач** (JSON). Если задачи нет в очереди — её не существует. Nexus позволяет визуализировать этот процесс.
+#### 3. Orchestrator (`agent_orchestrator.py`)
+Движок, который живет в каждом вашем проекте. Он связывает ваши желания с файловой системой. **API-ключи не нужны**, так как он просто готовит текст для чата.
 
 <details>
-<summary><b>📸 Скриншот: Очередь Задач (Task Queue)</b></summary>
-
-> *Вставьте скриншот таблицы задач проекта сюда*
+<summary><b>📸 Скриншот: Task Queue</b></summary>
 > `![Task Queue](INSERT_LINK_HERE)`
-
 </details>
 
-#### 4. Оркестратор (`agent_orchestrator.py`)
-Менеджер уровня проекта. Он работает локально, управляет JSON-файлами и **динамически собирает промпты** для LLM на основе установленных навыков. **API-ключи не нужны!**
-
 ---
-
-### 🚀 Как это работает (The Gemini CLI Flow)
-
-Этот инструмент создан для работы в паре с **Gemini CLI** (или веб-интерфейсом).
-
-1.  **Bootstrap:** Скормите Gemini системный контекст (`GEMINI_TEMPLATE.md`).
-2.  **Task:** Поставьте задачу Роутеру через терминал: `python scripts/agent_orchestrator.py add --role router ...`
-3.  **Magic:** Оркестратор соберет "Меню" агентов и подготовит промпт.
-4.  **Execute:** Вы копируете промпт в чат, Gemini выдает решение (JSON или код).
-
----
-
-### 📂 Структура
-
-```
-GeminiAgentHRdep/
-├── nexus.py                 # Admin TUI (Дашборд и Инсталлятор)
-├── templates/
-│   └── agent_orchestrator.py # V3 Оркестратор (Скопируйте это в свои проекты!)
-├── master_prompts/          # Золотой Реестр
-│   ├── roles/               # Личности (Coder, Planner, Reviewer)
-│   ├── skills/              # Хард-скиллы (Стеки, Фреймворки)
-│   └── ...
-```
 
 </details>
 
 ## 👔 Gemini Agent HR Department
 
-**Stop managing prompts in text files. Start managing an AI Workforce.**
+**Managing an AI Workforce for Gemini CLI.**
 
-This repository serves as the **Central Headquarters (HR Department)** for your autonomous AI agents. It provides a CLI dashboard to "hire" (install) agents into your projects, manage their "skills" (context modules), and orchestrate their work.
+This project solves the main problem of working with LLMs: **context loss and task chaos.**
+We turn Gemini CLI into an autonomous development environment where Python scripts act as "External Memory" and "Context Manager".
 
 ---
 
-### 🌟 Philosophy & Features
+### 🌟 Philosophy: Why?
 
-We moved beyond simple "chat with LLM". We treat AI Agents as **employees** with specific roles and skills.
+Gemini is a genius executor but a terrible manager. It forgets tasks, confuses files, and loses track.
+**Gemini Agent HRdep** provides the missing structure:
 
-#### 1. The HR Manager (`nexus.py`)
-A TUI dashboard to view all your projects in one place. Monitor task queues and agent activity at a glance.
+1.  **State Management (Orchestrator):** Scripts persist project state in JSON files. Even if the session dies, the work remains.
+2.  **Context Injection (Skills):** Instead of explaining "How we write React" every time, the Orchestrator **automatically** injects the relevant guides into the prompt right before execution.
+3.  **Role Play (Registry):** We force Gemini to switch between strict roles (Coder, QA, Planner) to avoid the "jack of all trades" degradation.
+
+**Result:** You chat with Gemini, while scripts in the background manage files, context, and the task queue.
+
+---
+
+### 🚀 The Loop
+
+#### 1. Initialization (Bootstrap)
+You feed the system prompt (`GEMINI_TEMPLATE.md`) to Gemini. Now it knows it's not working alone but paired with the Orchestrator.
+
+#### 2. Task Assignment (Router)
+You tell Gemini: *"We need to add auth"*.
+Gemini (acting as Router) generates a terminal command:
+`python agent_orchestrator.py add --role planner ...`
+
+#### 3. Orchestrator Magic (Automation)
+You run that command. The script:
+*   Creates a JSON task entry.
+*   Scans the project for relevant **Skills** (e.g., `auth_best_practices.md`).
+*   Constructs the perfect context-rich prompt for the next step.
+
+#### 4. Execution
+You run `python agent_orchestrator.py run`. The script outputs a prompt. You paste it to Gemini.
+Gemini sees: *"You are Coder. Here is the task. Here are the files. Here are the security rules. Write code."*
+
+---
+
+### 📂 The Toolkit
+
+#### 1. Nexus Dashboard (`nexus.py`)
+A TUI dashboard to manage your projects. View task queues and "hire" (install) new agents from the Registry.
 
 <details>
-<summary><b>📸 Screenshot: Command Center (Dashboard)</b></summary>
-
-> *Insert Dashboard screenshot link here*
+<summary><b>📸 Screenshot: Dashboard</b></summary>
 > `![Dashboard](INSERT_LINK_HERE)`
-
 </details>
 
-#### 2. The Registry & Hiring (`master_prompts/`)
-The golden source of truth. Select Personas (Roles) and Knowledge Modules (Skills) from the registry and "install" them into your project with one click.
+#### 2. Master Registry (`master_prompts/`)
+A library of Roles and Skills. Need testing? Install `QA Expert`. Need deployment? Install `DevOps`.
 
 <details>
-<summary><b>📸 Screenshot: Agent Installer</b></summary>
-
-> *Insert Installer screenshot link here*
+<summary><b>📸 Screenshot: Installer</b></summary>
 > `![Installer](INSERT_LINK_HERE)`
-
 </details>
 
-#### 3. Queue Driven Development
-We don't use "chats" to manage work state. We use a **Task Queue** (JSON). If it's not in the queue, it doesn't exist. Nexus visualizes this flow.
+#### 3. Orchestrator (`agent_orchestrator.py`)
+The engine that lives inside each of your projects. It bridges your intent with the file system. **No API Keys required**, as it simply prepares text for the chat interface.
 
 <details>
-<summary><b>📸 Screenshot: Task Queue Monitoring</b></summary>
-
-> *Insert Task Queue screenshot link here*
+<summary><b>📸 Screenshot: Task Queue</b></summary>
 > `![Task Queue](INSERT_LINK_HERE)`
-
 </details>
-
-#### 4. The Orchestrator (`agent_orchestrator.py`)
-The project-level manager. It runs locally, manages JSON task files, and **dynamically builds prompts** for the LLM based on installed skills. **No API Keys required!**
-
----
-
-### 🚀 The Workflow (V3.0)
-
-```mermaid
-flowchart TB
- subgraph subGraph0["Human & Management"]
-        USER["👤 User"]
-        NEXUS["🎮 Nexus TUI<br>(HR Dashboard)"]
-        REGISTRY["🏛️ Master Registry<br>(master_prompts/)"]
-  end
- subgraph subGraph1["Orchestration Layer"]
-        ORCH["🎯 Orchestrator<br>(scripts/agent_orchestrator.py)"]
-        QUEUE[("📋 Task Queue<br>tasks/*.json")]
-        LOCAL_PROMPTS[("🧠 Local Knowledge<br>prompts/roles/ & skills/")]
-  end
- subgraph subGraph2["AI Workforce"]
-        ROUTER["🔀 Router<br>(Dispatcher)"]
-        WORKERS["👷 Workers<br>(Coder, QA, DevOps...)"]
-  end
- subgraph subGraph3["Execution"]
-        GEMINI["🤖 Gemini CLI<br>(Execution Context)"]
-        PROJECT["📁 Project Files"]
-  end
-    USER -- "1. Install Agents" --> NEXUS
-    NEXUS -- Copy --> REGISTRY
-    REGISTRY -- Install --> LOCAL_PROMPTS
-    
-    USER -- "2. Add Task" --> ORCH
-    ORCH -- Enqueue --> QUEUE
-    
-    USER -- "3. Run" --> ORCH
-    ORCH -- "Scan Skills" --> LOCAL_PROMPTS
-    LOCAL_PROMPTS -- "Inject Skills" --> GEMINI
-    
-    ORCH -- "4. Generate Prompt" --> GEMINI
-    
-    GEMINI -- "Router Logic" --> ROUTER
-    ROUTER -- "New Tasks" --> QUEUE
-    
-    GEMINI -- "Worker Logic" --> WORKERS
-    WORKERS -- Edit --> PROJECT
-
-    style NEXUS fill:#ff9f43,color:#fff
-    style ORCH fill:#54a0ff,color:#fff
-    style ROUTER fill:#ff6b6b,color:#fff
-    style WORKERS fill:#1dd1a1,color:#fff
-```
-
-### 🚀 The Gemini CLI Workflow
-
-This toolset is designed to empower your **Gemini CLI** (or Web Interface) sessions.
-
-1.  **Bootstrap:** Feed the system context (`GEMINI_TEMPLATE.md`) to your chat.
-2.  **Task:** Assign a task to the Router via terminal: `python scripts/agent_orchestrator.py add --role router ...`
-3.  **Magic:** The Orchestrator scans installed agents/skills and builds a dynamic prompt.
-4.  **Execute:** Copy the prompt to the chat. Gemini executes the role.
-
----
-
-### 📂 Structure
-
-```
-GeminiAgentHRdep/
-├── nexus.py                 # Admin TUI (Dashboard & Installer)
-├── templates/
-│   └── agent_orchestrator.py # V3 Orchestrator (Copy this to your projects!)
-├── master_prompts/          # The Golden Registry
-│   ├── roles/               # Agent Personas (Coder, Planner, Reviewer)
-│   ├── skills/              # Hard Skills (Tech Stacks, Frameworks)
-│   └── ...
-```
 
 ---
 
 ### 📦 Requirements
 - Python 3.10+
 - `rich`, `textual`, `pyyaml`, `pyperclip`
-- **NO API KEYS REQUIRED:** All interaction happens via your existing Chat Interface (CLI/Web). The Python scripts simply manage the file system state.
+- **Zero-Config:** Works with any LLM interface (CLI, Web, API).
