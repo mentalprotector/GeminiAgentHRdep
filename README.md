@@ -129,6 +129,53 @@ The project-level manager. It runs locally, manages JSON task files, and **dynam
 
 ---
 
+### 🚀 The Workflow (V3.0)
+
+```mermaid
+flowchart TB
+ subgraph subGraph0["Human & Management"]
+        USER["👤 User"]
+        NEXUS["🎮 Nexus TUI<br>(HR Dashboard)"]
+        REGISTRY["🏛️ Master Registry<br>(master_prompts/)"]
+  end
+ subgraph subGraph1["Orchestration Layer"]
+        ORCH["🎯 Orchestrator<br>(scripts/agent_orchestrator.py)"]
+        QUEUE[("📋 Task Queue<br>tasks/*.json")]
+        LOCAL_PROMPTS[("🧠 Local Knowledge<br>prompts/roles/ & skills/")]
+  end
+ subgraph subGraph2["AI Workforce"]
+        ROUTER["🔀 Router<br>(Dispatcher)"]
+        WORKERS["👷 Workers<br>(Coder, QA, DevOps...)"]
+  end
+ subgraph subGraph3["Execution"]
+        GEMINI["🤖 Gemini CLI<br>(Execution Context)"]
+        PROJECT["📁 Project Files"]
+  end
+    USER -- "1. Install Agents" --> NEXUS
+    NEXUS -- Copy --> REGISTRY
+    REGISTRY -- Install --> LOCAL_PROMPTS
+    
+    USER -- "2. Add Task" --> ORCH
+    ORCH -- Enqueue --> QUEUE
+    
+    USER -- "3. Run" --> ORCH
+    ORCH -- "Scan Skills" --> LOCAL_PROMPTS
+    LOCAL_PROMPTS -- "Inject Skills" --> GEMINI
+    
+    ORCH -- "4. Generate Prompt" --> GEMINI
+    
+    GEMINI -- "Router Logic" --> ROUTER
+    ROUTER -- "New Tasks" --> QUEUE
+    
+    GEMINI -- "Worker Logic" --> WORKERS
+    WORKERS -- Edit --> PROJECT
+
+    style NEXUS fill:#ff9f43,color:#fff
+    style ORCH fill:#54a0ff,color:#fff
+    style ROUTER fill:#ff6b6b,color:#fff
+    style WORKERS fill:#1dd1a1,color:#fff
+```
+
 ### 🚀 The Gemini CLI Workflow
 
 This toolset is designed to empower your **Gemini CLI** (or Web Interface) sessions.
