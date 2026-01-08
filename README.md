@@ -54,7 +54,7 @@ TUI-панель для управления проектами. Позволя�
 
 <details>
 <summary><b>📸 Скриншот: Dashboard</b></summary>
-> `![Dashboard](INSERT_LINK_HERE)`
+<img width="1313" height="722" alt="image" src="https://github.com/user-attachments/assets/23be2b7a-4252-4793-bebc-7a17e98b217d" />
 </details>
 
 #### 2. Master Registry (`master_prompts/`)
@@ -62,7 +62,7 @@ TUI-панель для управления проектами. Позволя�
 
 <details>
 <summary><b>📸 Скриншот: Installer</b></summary>
-> `![Installer](INSERT_LINK_HERE)`
+<img width="1294" height="718" alt="image" src="https://github.com/user-attachments/assets/2ec9c39a-0193-43d5-bb4b-39542251e716" />
 </details>
 
 #### 3. Orchestrator (`agent_orchestrator.py`)
@@ -70,7 +70,7 @@ TUI-панель для управления проектами. Позволя�
 
 <details>
 <summary><b>📸 Скриншот: Task Queue</b></summary>
-> `![Task Queue](INSERT_LINK_HERE)`
+<img width="1308" height="719" alt="image" src="https://github.com/user-attachments/assets/f27696e3-ede5-47ee-a169-bd78c5da69e4" />
 </details>
 
 ---
@@ -128,7 +128,7 @@ A TUI dashboard to manage your projects. View task queues and "hire" (install) n
 
 <details>
 <summary><b>📸 Screenshot: Dashboard</b></summary>
-> `![Dashboard](INSERT_LINK_HERE)`
+<img width="1313" height="722" alt="image" src="https://github.com/user-attachments/assets/23be2b7a-4252-4793-bebc-7a17e98b217d" />
 </details>
 
 #### 2. Master Registry (`master_prompts/`)
@@ -136,8 +136,7 @@ A library of Roles and Skills. Need testing? Install `QA Expert`. Need deploymen
 
 <details>
 <summary><b>📸 Screenshot: Installer</b></summary>
-> `<img width="1294" height="718" alt="image" src="https://github.com/user-attachments/assets/2a17de1b-aa98-4faa-ae37-e43266136b0e" />
-`
+<img width="1294" height="718" alt="image" src="https://github.com/user-attachments/assets/2ec9c39a-0193-43d5-bb4b-39542251e716" />
 </details>
 
 #### 3. Orchestrator (`agent_orchestrator.py`)
@@ -145,7 +144,8 @@ The engine that lives inside each of your projects. It bridges your intent with 
 
 <details>
 <summary><b>📸 Screenshot: Task Queue</b></summary>
-> `![Task Queue](INSERT_LINK_HERE)`
+<img width="1308" height="719" alt="image" src="https://github.com/user-attachments/assets/f27696e3-ede5-47ee-a169-bd78c5da69e4" />
+
 </details>
 
 ---
