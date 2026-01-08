@@ -136,7 +136,8 @@ A library of Roles and Skills. Need testing? Install `QA Expert`. Need deploymen
 
 <details>
 <summary><b>📸 Screenshot: Installer</b></summary>
-> `![Installer](INSERT_LINK_HERE)`
+> `<img width="1294" height="718" alt="image" src="https://github.com/user-attachments/assets/2a17de1b-aa98-4faa-ae37-e43266136b0e" />
+`
 </details>
 
 #### 3. Orchestrator (`agent_orchestrator.py`)
