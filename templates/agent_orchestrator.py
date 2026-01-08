@@ -68,6 +68,7 @@ def add_task(role, instruction, context_paths=None):
         "status": "pending",
         "retry_count": 0,
         "created_at": datetime.now().isoformat(),
+        "log": [],
         "output_log": f".gemini/agents/logs/{task_id}.log"
     }
     
@@ -93,6 +94,14 @@ def get_next_task():
         except Exception:
             continue
     return None, None
+
+
+def log_task_event(task_path, data, event_text):
+    if "log" not in data: data["log"] = []
+    entry = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {event_text}"
+    data["log"].append(entry)
+    with open(task_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def update_task_status(task_path, data, status):
     data["status"] = status
@@ -154,6 +163,12 @@ def run_task():
         return
 
     # Don't update status yet to allow re-run if script fails mid-way
+
+    # # --- V4 LOGGING ---
+    # skills_str = f" with skills: {', '.join(skills)}" if skills else ""
+    # log_task_event(task_path, data, f"PROMPT GENERATED for {data['role']}{skills_str}")
+    # # ------------------
+
     # update_task_status(task_path, data, "in_progress")
     
     print(f"🚀 PROCESSING TASK: {data['id']} ({data['role']})")
@@ -220,6 +235,12 @@ When finished, mark this task as completed by running:
     print(final_prompt)
     
     # Mark as in_progress AFTER printing successfully
+
+    # --- V4 LOGGING ---
+    skills_str = f" with skills: {', '.join(skills)}" if skills else ""
+    log_task_event(task_path, data, f"PROMPT GENERATED for {data['role']}{skills_str}")
+    # ------------------
+
     update_task_status(task_path, data, "in_progress")
 
 def complete_task(task_id):
@@ -238,6 +259,7 @@ def complete_task(task_id):
         with open(task_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
+        log_task_event(task_file, data, "TASK COMPLETED")
         update_task_status(task_file, data, "completed")
         print(f"✅ Task {data['id']} marked as COMPLETED.")
     except Exception as e:
