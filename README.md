@@ -16,61 +16,39 @@
 Мы вышли за рамки простого "чата с LLM". Мы относимся к AI-агентам как к **сотрудникам** с конкретными ролями и навыками.
 
 1.  **Реестр (`master_prompts/`)**: "Золотой источник" правды для личностей агентов (Ролей) и технических знаний (Навыков).
-2.  **HR-менеджер (`nexus.py`)**: TUI-панель для просмотра проектов, мониторинга очередей задач и "установки" агентов.
-3.  **Оркестратор (`agent_orchestrator.py`)**: Менеджер уровня проекта, который раздает задачи, динамически внедряет навыки и выполняет рабочие процессы.
-4.  **Queue Driven Development**: Мы не используем чаты для управления работой. Мы используем **Очередь Задач** (JSON). Если задачи нет в очереди — её не существует.
+2.  **HR-менеджер (`nexus.py`)**: TUI-панель для просмотра проектов, мониторинга **Очереди Задач** и "установки" агентов.
+3.  **Оркестратор (`agent_orchestrator.py`)**: Менеджер уровня проекта. Он работает локально, управляет JSON-файлами задач и генерирует промпты для LLM. **API-ключи не нужны!**
+4.  **Queue Driven Development**: Мы не используем чаты для управления работой. Мы используем **Очередь Задач** (JSON).
 
 ---
 
-### 🚀 Быстрый Старт
+### 🚀 Как это работает (The Gemini CLI Flow)
 
-#### 1. Установка
-Клонируйте этот репозиторий рядом с вашими проектами:
+Этот инструмент создан для работы в паре с **Gemini CLI** (или веб-интерфейсом).
+
+#### 1. Инициализация Сессии
+В начале работы с проектом, скормите Gemini CLI системный контекст. Обычно он лежит в `GEMINI.md`.
+> "Вот контекст моего проекта. Изучи его перед началом работы."
+
+#### 2. Постановка Задачи (Router)
+В терминале (не в чате!) создайте задачу для Роутера:
 ```bash
-git clone https://github.com/mentalprotector/GeminiAgentHRdep.git
-cd GeminiAgentHRdep
-pip install -r requirements.txt
+python scripts/agent_orchestrator.py add --role router --instruction "Нужно добавить кнопку лайка"
 ```
 
-#### 2. Настройка Нового Проекта
-Скопируйте "Движок" (Оркестратор) в ваш целевой проект:
-```bash
-mkdir my-new-project/.gemini/agents
-cp GeminiAgentHRdep/templates/agent_orchestrator.py my-new-project/scripts/
-```
+#### 3. Магия Роутера (System Agent)
+Запустите оркестратор: `python scripts/agent_orchestrator.py run`
+*   **Важно:** Роутер — это **Системный Агент**. У него нет статического промпта.
+*   Оркестратор сканирует папку `.gemini/agents` в вашем проекте.
+*   Он собирает список всех установленных агентов (Coder, QA) и скиллов (React, SQL).
+*   Он формирует "Меню" и внедряет его в промпт Роутера.
+*   **Вы копируете этот промпт и отправляете в Gemini CLI.**
 
-#### 3. Запуск HR-панели
-Запустите Nexus TUI из папки HR:
-```bash
-python nexus.py
-```
-*   Выберите проект из списка.
-*   Нажмите **`i`**, чтобы открыть **Инсталлятор**.
-*   Выберите Роли (например, `Coder`, `QA Expert`) и Навыки (например, `Flask`, `React`).
-*   Нажмите **Install**.
+#### 4. Решение
+Gemini (в роли Роутера) анализирует запрос и выдает JSON-план. Вы сохраняете этот JSON (или скрипт делает это за вас).
 
----
-
-### 🤖 Рабочий Процесс (V3.0)
-
-#### Шаг 1: Постановка Задачи
-В терминале вашего проекта скажите Роутеру, что нужно сделать:
-```bash
-python scripts/agent_orchestrator.py add --role router --instruction "Рефакторинг страницы входа с использованием новой дизайн-системы"
-```
-
-#### Шаг 2: Авто-Обнаружение
-Оркестратор просыпается. Он сканирует папку `.gemini/agents/prompts/` в проекте.
-*   "Я вижу, у нас есть **Coder**."
-*   "Я вижу, у нас есть навык **React Design System**."
-Он передает это "меню" Роутеру.
-
-#### Шаг 3: Маршрутизация
-Роутер (LLM) анализирует запрос:
-> "Пользователь хочет рефакторинг UI. Назначаю **Coder** с навыком **React Design System**."
-
-#### Шаг 4: Исполнение
-Оркестратор запускает Кодера, внедряя конкретные дизайн-токены и правила из файла Навыка в контекст. Кодер пишет код, который действительно работает.
+#### 5. Мониторинг
+Запустите `nexus.py` и откройте вкладку **Tasks**. Вы увидите всю очередь задач в красивом интерфейсе.
 
 ---
 
@@ -85,10 +63,18 @@ GeminiAgentHRdep/
 │   ├── roles/               # Личности (Coder, Planner, Reviewer)
 │   ├── skills/              # Хард-скиллы (Стеки, Фреймворки)
 │   └── ...
-└── requirements.txt         # Зависимости (Rich, Textual)
 ```
 
+---
+
+### 📦 Требования
+- Python 3.10+
+- `rich`, `textual`, `pyyaml`, `pyperclip`
+- **Никаких API ключей:** Всё взаимодействие происходит через ваш текущий интерфейс чата (CLI/Web). Скрипты управляют только файловой системой.
+
 </details>
+
+## 👔 Gemini Agent HR Department
 
 **Stop managing prompts in text files. Start managing an AI Workforce.**
 
@@ -96,99 +82,63 @@ This repository serves as the **Central Headquarters (HR Department)** for your 
 
 ---
 
-## 🌟 Philosophy
+### 🌟 Philosophy
 
 We moved beyond simple "chat with LLM". We treat AI Agents as **employees** with specific roles and skills.
 
 1.  **The Registry (`master_prompts/`)**: The golden source of truth for your agent personas (Roles) and technical knowledge (Skills).
-2.  **The HR Manager (`nexus.py`)**: A TUI dashboard to view your projects, monitor task queues, and "install" agents.
-3.  **The Orchestrator (`agent_orchestrator.py`)**: The project-level manager that assigns tasks, injects skills dynamically, and executes workflows.
-4.  **Queue Driven Development**: We don't use "chats" to manage work. We use a **Task Queue** (JSON). If it's not in the queue, it doesn't exist.
+2.  **The HR Manager (`nexus.py`)**: A TUI dashboard to view your projects, monitor the **Task Queue**, and "install" agents.
+3.  **The Orchestrator (`agent_orchestrator.py`)**: The project-level manager. It runs locally, manages JSON task files, and generates prompts for the LLM. **No API Keys required!**
+4.  **Queue Driven Development**: We don't use "chats" to manage work state. We use a **Task Queue** (JSON).
 
 ---
 
-## 🚀 Quick Start
+### 🚀 The Gemini CLI Workflow
 
-### 1. Installation
-Clone this repo alongside your other projects:
+This toolset is designed to empower your **Gemini CLI** (or Web Interface) sessions.
+
+#### 1. Session Bootstrap
+Start your session by feeding the context to Gemini. Usually found in `GEMINI.md`.
+> "Here is the project context. Analyze it."
+
+#### 2. Assign a Task (Router)
+In your terminal (not chat!), assign a task to the Router:
 ```bash
-git clone https://github.com/mentalprotector/GeminiAgentHRdep.git
-cd GeminiAgentHRdep
-pip install -r requirements.txt
+python scripts/agent_orchestrator.py add --role router --instruction "Add a like button"
 ```
 
-### 2. Setup a New Project
-Copy the "Engine" (Orchestrator) to your target project:
-```bash
-mkdir my-new-project/.gemini/agents
-cp GeminiAgentHRdep/templates/agent_orchestrator.py my-new-project/scripts/
-```
+#### 3. Router Magic (The System Agent)
+Run the orchestrator: `python scripts/agent_orchestrator.py run`
+*   **Note:** The Router is a **System Agent**. It does not have a static prompt.
+*   The Orchestrator scans your project's `.gemini/agents` folder.
+*   It discovers installed Agents (Coder, QA) and Skills (React, SQL).
+*   It builds a "Menu" and **dynamically injects** it into the Router's prompt.
+*   **You copy this prompt and paste it into Gemini CLI.**
 
-### 3. Launch the HR Dashboard
-Run the Nexus TUI from the HR folder:
-```bash
-python nexus.py
-```
-*   Select your project from the list.
-*   Press **`i`** to open the **Installer**.
-*   Select Roles (e.g., `Coder`, `QA Expert`) and Skills (e.g., `Flask`, `React`).
-*   Click **Install**.
+#### 4. Decision
+Gemini (acting as Router) analyzes the request and outputs a JSON plan.
+
+#### 5. Monitoring
+Run `nexus.py` and switch to the **Tasks** tab. You can visualize the entire queue status in real-time.
 
 ---
 
-## 🤖 The Workflow (V3.0)
-
-### Step 1: Assign a Task
-In your project terminal, tell the Router what you need.
-```bash
-python scripts/agent_orchestrator.py add --role router --instruction "Refactor the login page to use new design system"
-```
-
-### Step 2: Auto-Discovery
-The Orchestrator wakes up. It scans your project's `.gemini/agents/prompts/` folder.
-*   "I see we have a **Coder**."
-*   "I see we have the **React Design System** skill."
-It feeds this "menu" to the Router.
-
-### Step 3: Routing
-The Router (LLM) analyzes the request:
-> "User wants UI refactor. Assigning to **Coder** with skill **React Design System**."
-
-### Step 4: Execution
-The Orchestrator runs the Coder, injecting the specific design tokens and rules from the Skill file into the context. The Coder writes code that actually compiles.
-
----
-
-## 📂 Structure
+### 📂 Structure
 
 ```
 GeminiAgentHRdep/
-├── nexus.py                 # The Admin TUI (Dashboard & Installer)
+├── nexus.py                 # Admin TUI (Dashboard & Installer)
 ├── templates/
 │   └── agent_orchestrator.py # V3 Orchestrator (Copy this to your projects!)
 ├── master_prompts/          # The Golden Registry
 │   ├── roles/               # Agent Personas (Coder, Planner, Reviewer)
 │   ├── skills/              # Hard Skills (Tech Stacks, Frameworks)
 │   └── ...
-└── requirements.txt         # Dependencies (Rich, Textual)
 ```
-
-## 🧠 Advanced: Creating New Agents
-
-1.  Create a file in `master_prompts/roles/my_new_agent.md`.
-2.  Add YAML metadata:
-    ```yaml
-    ---
-    role: Database Wizard
-    description: Expert in SQL optimization.
-    ---
-    ```
-3.  Open `nexus.py` and install it into your project.
-4.  The Router will automatically detect it next time you run a task!
 
 ---
 
-## 📦 Requirements
+### 📦 Requirements
 - Python 3.10+
 - `rich`, `textual`, `pyyaml`, `pyperclip`
-- Google Gemini API Key (set as `GEMINI_API_KEY` env var in your projects)
+- **NO API KEYS REQUIRED:** All interaction happens via your existing Chat Interface (CLI/Web). The Python scripts simply manage the file system state.
